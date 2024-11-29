@@ -17,7 +17,7 @@ Follow these steps to install and integrate Django Request Logs into your Django
 Install the app using pip:
 
 ```bash
-pip install django-request-logs
+pip install request-logs
 ```
 
 ### Step 2: Add to `INSTALLED_APPS`
@@ -27,7 +27,7 @@ Update your Django settings file (`settings.py`) to include the app:
 ```python
 INSTALLED_APPS = [
     ...,
-    'request_logs',
+    'request-logs',
 ]
 ```
 
@@ -38,7 +38,7 @@ Insert the `RequestLoggingMiddleware` into the `MIDDLEWARE` list in your setting
 ```python
 MIDDLEWARE = [
     ...,
-    'request_logs.middleware.RequestLoggingMiddleware',
+    'request-logs.middleware.RequestLoggingMiddleware',
 ]
 ```
 
@@ -95,7 +95,7 @@ The app includes default templates for displaying logs. These can be overridden 
 Ensure the app works as expected by running the test suite:
 
 ```bash
-python manage.py test request_logs
+python manage.py test request-logs
 ```
 
 ### Contributing
