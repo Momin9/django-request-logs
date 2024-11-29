@@ -1,0 +1,185 @@
+{% load static %}
+{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Logs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f5f7;
+        }
+
+        .container {
+            width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .search-container input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            color: #555;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+        }
+
+        .method-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .GET {
+            background-color: #2196f3;
+        }
+
+        .POST {
+            background-color: #ff9800;
+        }
+
+        .PUT {
+            background-color: #9c27b0;
+        }
+
+        .DELETE {
+            background-color: #f44336;
+        }
+
+        .view-details {
+            color: #888;
+            font-size: 14px;
+            text-align: right;
+            cursor: pointer;
+        }
+
+        .view-details:hover {
+            color: #333;
+        }
+
+        .status-200 {
+            background-color: #4caf50;
+        }
+
+        .status-404 {
+            background-color: #ff9800;
+        }
+
+        .status-500 {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">Requests</div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Path..." onkeyup="filterTable()">
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Verb</th>
+            <th>Path</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Happened</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody id="requestTable">
+        {% for log in logs %}
+            <tr>
+                <td><span class="method-badge {{ log.method }}">{{ log.method }}</span></td>
+                <td>{{ log.path }}</td>
+                <td><span class="status-badge status-{{ log.status_code }}">{{ log.status_code }}</span></td>
+                <td>{{ log.duration }} ms</td>
+                <td>{{ log.timestamp|timesince }} ago</td>
+                <td class="view-details"><a href="{% url 'request_log_detail' log.id %}">➔</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const rows = document.getElementById('requestTable').getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const pathCell = rows[i].getElementsByTagName('td')[1];
+            if (pathCell) {
+                const pathText = pathCell.textContent || pathCell.innerText;
+                rows[i].style.display = pathText.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+            }
+        }
+    }
+
+    function fetchLatestLogs() {
+        fetch("{% url 'fetch_latest_logs' %}")
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('requestTable');
+                tableBody.innerHTML = '';
+                data.logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td><span class="method-badge ${log.method}">${log.method}</span></td>
+                            <td>${log.path}</td>
+                            <td><span class="status-badge status-${log.status_code}">${log.status_code}</span></td>
+                            <td>${log.duration} ms</td>
+                            <td>${log.timesince} ago</td>
+                            <td class="view-details"><a href="/request-logs/${log.id}/">➔</a></td>
+                        `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching logs:', error));
+    }
+
+    setInterval(fetchLatestLogs, 4000);
+</script>
+</body>
+</html>
