@@ -1,0 +1,59 @@
+{% load static %}
+
+<div class="header-icon"><img src="https://i.ibb.co/BNfQrgj/Family-Time-Logo.png" alt="Icon" class="header-icon"></div>
+<div class="header-container">
+    <div class="title-container">
+        <span class="header-title">Django Log Requests</span>
+    </div>
+    <div class="header-right">
+        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+    </div>
+</div>
+
+<style>
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        background-color: #f4f5f7;
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-icon {
+        width: 165px;
+        object-fit: contain;
+        margin-left: 15px;
+
+    }
+    .header-title {
+        margin-left: 61px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .header-right {
+        margin-left: auto; /* Pushes the logout button to the far right */
+    }
+
+    .logout-button {
+        padding: 10px 20px;
+        background-color: #2196f3;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+    }
+
+    .logout-button:hover {
+        background-color: #1976d2;
+    }
+</style>

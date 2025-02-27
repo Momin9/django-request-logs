@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+recursive-include request_logs *
+recursive-include django_requests_loger/templates *

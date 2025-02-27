@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Requests</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/ycRccW51/0-v8-Ot7-LRl6-TSDXt-BR.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #156CF7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 1s;
+        }
+
+        .login-container img {
+            width: 80px;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-container h1 {
+            font-size: 22px;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 40px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #156CF7;
+            box-shadow: 0 0 5px rgba(21, 108, 247, 0.5);
+        }
+
+        .form-group i {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus + i {
+            color: #156CF7;
+        }
+
+        .form-group .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .form-group .toggle-password:hover {
+            color: #156CF7;
+        }
+
+        .login-btn {
+            background-color: #156CF7;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #0e56d0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-top: 1.5rem;
+        }
+
+        .footer-links a {
+            color: #156CF7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: #0e56d0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <!-- Dynamic logo -->
+    <img src="{% static LOGIN_PAGE_LOGO %}" alt="Logo">
+
+    <!-- Dynamic heading -->
+    <h1>{{ LOGIN_PAGE_HEADING|safe }}</h1>
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <input type="email" name="email" placeholder="Email" required>
+            <i class="ri-mail-line"></i>
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <i class="ri-lock-line"></i>
+            <span class="toggle-password" onclick="togglePassword()">
+                <i id="toggle-icon" class="ri-eye-off-line" style="margin-left: -30px"></i>
+            </span>
+        </div>
+        <button type="submit" class="login-btn">LOGIN</button>
+    </form>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggle-icon');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('ri-eye-off-line');
+            toggleIcon.classList.add('ri-eye-line');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('ri-eye-line');
+            toggleIcon.classList.add('ri-eye-off-line');
+        }
+    }
+</script>
+</body>
+</html>

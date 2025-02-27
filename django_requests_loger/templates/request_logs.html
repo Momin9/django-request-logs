@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Request Logs</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+        <style>
+            body {
+                background-color: #f4f5f7;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .header-text {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            .status-badge, .method-badge {
+                padding: 6px 10px;
+                border-radius: 4px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+
+            /* Status Colors */
+            .status-200 {
+                background-color: #198754;
+                color: #fff;
+            }
+
+            .status-201 {
+                background-color: #20c997;
+                color: #fff;
+            }
+
+            .status-204 {
+                background-color: #0dcaf0;
+                color: #fff;
+            }
+
+            .status-302 {
+                background-color: #0d59f0;
+                color: #fff;
+            }
+
+            .status-400 {
+                background-color: #ffc107;
+                color: #000;
+            }
+
+            .status-401 {
+                background-color: #fd7e14;
+                color: #fff;
+            }
+
+            .status-403 {
+                background-color: #d63384;
+                color: #fff;
+            }
+
+            .status-404 {
+                background-color: #dc3545;
+                color: #fff;
+            }
+
+            .status-405 {
+                background-color: #6610f2;
+                color: #fff;
+            }
+
+            .status-500 {
+                background-color: #6f42c1;
+                color: #fff;
+            }
+
+            .status-502 {
+                background-color: #0d6efd;
+                color: #fff;
+            }
+
+            .status-503 {
+                background-color: #6c757d;
+                color: #fff;
+            }
+
+            .GET {
+                background-color: #0d6efd;
+            }
+
+            .POST {
+                background-color: #ffc107;
+            }
+
+            .PUT {
+                background-color: #6610f2;
+            }
+
+            .DELETE {
+                background-color: #dc3545;
+            }
+
+            .search-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .form-control {
+                width: 250px;
+                margin-right: 15px;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    </head>
+    <body>
+    <div class="container">
+        <div class="header-text">Request Logs</div>
+
+        <!-- Filters and Search -->
+        <div class="search-container">
+            <div class="d-flex">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search logs..." />
+                <select id="methodFilter" class="form-select">
+                    <option value="">All Methods</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                </select>
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="200">200</option>
+                    <option value="201">201</option>
+                    <option value="302">302</option>
+                    <option value="404">404</option>
+                    <option value="400">400</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+            <button id="load-new" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Load New Entries
+            </button>
+        </div>
+
+        <!-- Logs Table -->
+        <table id="logsTable" class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>Verb</th>
+                <th>ID</th>
+                <th>Path</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Happened</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody id="log-rows">
+            <!-- AJAX-loaded content will be appended here -->
+            </tbody>
+        </table>
+
+        <!-- Load More Button -->
+        <div class="buttons-container d-flex justify-content-center align-items-center">
+            <button id="load-more" class="btn btn-outline-secondary">
+                <i class="bi bi-chevron-down"></i> Load Older Entries
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let offset = 0;
+        const limit = 100;
+        let allLogs = [];
+
+        function loadLogs(offset, limit, reset = false) {
+            $.ajax({
+                url: "{% url 'get_logs' %}",
+                data: {offset: offset, limit: limit},
+                success: function (data) {
+                    const logs = data.logs;
+                    if (reset) {
+                        $("#log-rows").empty();
+                        allLogs = [];
+                    }
+                    allLogs = [...allLogs, ...logs];
+                    applyFilters();
+                    if (!data.has_more) $("#load-more").hide();
+                    else $("#load-more").show();
+                    offset += logs.length;
+                },
+                error: function () {
+                    alert('Failed to load logs');
+                }
+            });
+        }
+
+        function renderLogs(logs) {
+            $("#log-rows").empty();
+            logs.forEach(log => {
+                const logDetailUrl = `/request-logs/${log.id}/`;
+                $("#log-rows").append(`
+                    <tr>
+                        <td><span class="method-badge ${log.method.toUpperCase()}">${log.method}</span></td>
+                        <td>${log.ID || "&nbsp;"}</td>
+                        <td>${log.path}</td>
+                        <td><span class="status-badge status-${log.status_code}">${log.status_code}</span></td>
+                        <td>${log.duration} ms</td>
+                        <td>${new Date(log.timestamp).toLocaleString()}</td>
+                        <td>
+                            <a href="${logDetailUrl}" class="btn btn-link">
+                                <i class="bi bi-info-circle-fill" style="font-size: 1.5rem;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function applyFilters() {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const method = $('#methodFilter').val();
+            const status = $('#statusFilter').val();
+
+            const filteredLogs = allLogs.filter(log => {
+                const matchesSearch = searchText ? log.path.toLowerCase().includes(searchText) || (log.ID && log.ID.toString().includes(searchText)): true;
+                const matchesMethod = method ? log.method.toUpperCase() === method.toUpperCase() : true;
+                const matchesStatus = status ? log.status_code.toString() === status : true;
+                return matchesSearch && matchesMethod && matchesStatus;
+            });
+
+            renderLogs(filteredLogs);
+        }
+
+        $(document).ready(function () {
+            loadLogs(offset, limit);
+
+            $("#load-more").on("click", function () {
+                loadLogs(offset, limit);
+            });
+
+            $("#load-new").on("click", function () {
+                offset = 0;
+                loadLogs(offset, limit, true);
+            });
+
+            $("#searchInput, #methodFilter, #statusFilter").on("input change", applyFilters);
+        });
+    </script>
+    </body>
+    </html>
+{% endblock %}
