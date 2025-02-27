@@ -229,6 +229,14 @@ Ensure the app works as expected by running the test suite:
 python manage.py test django_requests_loger
 ```
 
+### Login Page:
+![Login Page](https://i.ibb.co/SXc5gHwh/Screenshot-from-2025-02-27-18-40-18.png "Login Page")
+
+### Logs Page:
+![Logs Page](https://i.ibb.co/RpjtmXDK/Screenshot-from-2025-02-27-18-38-01.png "Logs Page")
+
+### Log Detail Page:
+![Log Detail Page](https://i.ibb.co/7x9NWdc0/Screenshot-from-2025-02-27-18-39-05.png "Log Detail Page")
 ### Contributing
 
 1. Fork the repository.
