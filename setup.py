@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="django-requests-loger",               # PyPI package name
-    version="1.1.7",
+    name="django_requests_loger",               # PyPI package name
+    version="1.1.9",
     author="Momin Ali",
     author_email="mominalikhoker589@gmail.com",
     description="A Django application for logging and displaying HTTP requests.",
